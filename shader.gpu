@@ -41,7 +41,7 @@ void main() {
 	vec3 normal = normalize(v_normal);
 	float light = dot(normal, u_reverseLightDirection);
 	
-    gl_FragColor = color*fColorCoef + texture2D(u_texture, v_texcoord)+(1.0+fColorCoef);
+    gl_FragColor = color*fColorCoef + texture2D(u_texture, v_texcoord)*(1.0-fColorCoef);
 	
 	gl_FragColor.rgb *= light;
 }`;

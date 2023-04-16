@@ -298,6 +298,7 @@ function initWebGL() {
     iVertexBuffer = gl.createBuffer();
     iTexBuffer = gl.createBuffer();
 
+
 	normalBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
 	//setNormals(gl);
@@ -407,7 +408,7 @@ function init() {
 
     spaceball = new TrackballRotator(canvas, draw, 0);
 	canvas.onmousewheel = function(event){
-		scale +=(event.wheelDelta/120)/1.0;
+		scale +=(event.wheelDelta/120)/10.0;
 		draw();
 		return false;
 	};
