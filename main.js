@@ -24,6 +24,11 @@ let normalBuffer
 let worldViewProjectionLocation
 let worldLocation
 
+let canvas;
+let video
+let webcamCanvas
+let webcamImage 
+
 let scale = 1.0;
 let convergence = 50;
 let eyeSeparation = 0.06;
@@ -217,62 +222,72 @@ function DrawSurface() {
  * way to draw with WebGL.  Here, the geometry is so simple that it doesn't matter.)
  */
 function draw() {
-	AnaglyphCamera = new StereoCamera(convergence, eyeSeparation, 1, FOV, nearClippingDistance, 12);
-	AnaglyphCamera.ApplyLeftFrustum();
-	AnaglyphCamera.ApplyRightFrustum();
+	let ctx =webcamCanvas.getContext('2d')
+    ctx.drawImage(video, -(webcamCanvas.width - webcamCanvas.height) / 2, 0, webcamCanvas.width, webcamCanvas.height);
 	
-    gl.clearColor(0.9, 0.9, 0.9, 1);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	webcamImage = new Image();
+    webcamImage.src = webcamCanvas.toDataURL();
+    webcamImage.onload = () =>
+	{
+		canvas.style.backgroundImage  = 'url(' + webcamCanvas.toDataURL()+ ')';
+		
+		AnaglyphCamera = new StereoCamera(convergence, eyeSeparation, 1, FOV, nearClippingDistance, 12);
+		AnaglyphCamera.ApplyLeftFrustum();
+		AnaglyphCamera.ApplyRightFrustum();
+		
+		//gl.clearColor(0.9, 0.9, 0.9, 1);
+		//gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    /* Set the values of the projection transformation */
-    let projection = AnaglyphCamera.mLeftProjectionMatrix;
-	let scaleM = m4.scaling(scale, scale, scale);
+		/* Set the values of the projection transformation */
+		let projection = AnaglyphCamera.mLeftProjectionMatrix;
+		let scaleM = m4.scaling(scale, scale, scale);
 
-    /* Get the view matrix from the SimpleRotator object.*/
-    let modelView = spaceball.getViewMatrix();
+		/* Get the view matrix from the SimpleRotator object.*/
+		let modelView = spaceball.getViewMatrix();
 
-    let rotateToPointZero = m4.axisRotation([0.707,0.707,0], 0.7);
-    let translateToPointZero = m4.translation(0, 0, -10);
+		let rotateToPointZero = m4.axisRotation([0.707,0.707,0], 0.7);
+		let translateToPointZero = m4.translation(0, 0, -10);
 
-    let matAccum0 = m4.multiply(scaleM, modelView);
-    let matAccum1 = m4.multiply(rotateToPointZero, matAccum0 );
-    let matAccum2 = m4.multiply(translateToPointZero, matAccum1 );
-	let matAccum3 = m4.multiply(AnaglyphCamera.mLeftModelViewMatrix, matAccum2);
+		let matAccum0 = m4.multiply(scaleM, modelView);
+		let matAccum1 = m4.multiply(rotateToPointZero, matAccum0 );
+		let matAccum2 = m4.multiply(translateToPointZero, matAccum1 );
+		let matAccum3 = m4.multiply(AnaglyphCamera.mLeftModelViewMatrix, matAccum2);
 
-    /* Multiply the projection matrix times the modelview matrix to give the
-       combined transformation matrix, and send that to the shader program. */
-    let modelViewProjection = m4.multiply(projection, matAccum3);
+		/* Multiply the projection matrix times the modelview matrix to give the
+		   combined transformation matrix, and send that to the shader program. */
+		let modelViewProjection = m4.multiply(projection, matAccum3);
 
-    gl.uniformMatrix4fv(iModelViewProjectionMatrix, false, modelViewProjection);
-    gl.uniform1i(iTextureMappingUnit, 0);
+		gl.uniformMatrix4fv(iModelViewProjectionMatrix, false, modelViewProjection);
+		gl.uniform1i(iTextureMappingUnit, 0);
 
-	//gl.uniformMatrix4fv(worldViewProjectionLocation, false, matAccum0);
-	gl.uniformMatrix4fv(worldLocation, false, matAccum1);
-	
-	
-	gl.colorMask(true, false, false, false);
-	DrawSurface();
-	
-	gl.clear(gl.DEPTH_BUFFER_BIT);
-	
-	projection = AnaglyphCamera.mRightProjectionMatrix;
-	matAccum3 = m4.multiply(AnaglyphCamera.mRightModelViewMatrix, matAccum2);
-	modelViewProjection = m4.multiply(projection, matAccum3);
-	
-	gl.uniformMatrix4fv(iModelViewProjectionMatrix, false, modelViewProjection );
-	
-	gl.colorMask(false, true, true, false);
-	DrawSurface();
-	gl.colorMask(true, true, true, true);
-	
-	
-	//gl.drawArrays(gl.TRIANGLES, 0, 16 * 6);
-    // Draw coordinate axes as thick colored lines that extend through the cube. */
-    gl.lineWidth(4);
-    drawPrimitive(gl.LINES, [1, 0, 0, 1], [-2, 0, 0, 2, 0, 0]);
-    drawPrimitive(gl.LINES, [0, 1, 0, 1], [0, -2, 0, 0, 2, 0]);
-    drawPrimitive(gl.LINES, [0, 0, 1, 1], [0, 0, -2, 0, 0, 2]);
-    gl.lineWidth(1);
+		//gl.uniformMatrix4fv(worldViewProjectionLocation, false, matAccum0);
+		gl.uniformMatrix4fv(worldLocation, false, matAccum1);
+		
+		
+		gl.colorMask(true, false, false, false);
+		DrawSurface();
+		
+		gl.clear(gl.DEPTH_BUFFER_BIT);
+		
+		projection = AnaglyphCamera.mRightProjectionMatrix;
+		matAccum3 = m4.multiply(AnaglyphCamera.mRightModelViewMatrix, matAccum2);
+		modelViewProjection = m4.multiply(projection, matAccum3);
+		
+		gl.uniformMatrix4fv(iModelViewProjectionMatrix, false, modelViewProjection );
+		
+		gl.colorMask(false, true, true, false);
+		DrawSurface();
+		gl.colorMask(true, true, true, true);
+		
+		
+		//gl.drawArrays(gl.TRIANGLES, 0, 16 * 6);
+		// Draw coordinate axes as thick colored lines that extend through the cube. */
+		gl.lineWidth(4);
+		drawPrimitive(gl.LINES, [1, 0, 0, 1], [-2, 0, 0, 2, 0, 0]);
+		drawPrimitive(gl.LINES, [0, 1, 0, 1], [0, -2, 0, 0, 2, 0]);
+		drawPrimitive(gl.LINES, [0, 0, 1, 1], [0, 0, -2, 0, 0, 2]);
+		gl.lineWidth(1);
+	};
 }
 
 
@@ -297,7 +312,6 @@ function initWebGL() {
 
     iVertexBuffer = gl.createBuffer();
     iTexBuffer = gl.createBuffer();
-
 
 	normalBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
@@ -386,7 +400,16 @@ function createProgram(gl, vShader, fShader) {
  * initialization function that will be called when the page has loaded
  */
 function init() {
-    let canvas;
+	video  = document.createElement('video');
+    video.width    = 600 / 9 * 16;
+    video.height   = 600;
+    video.autoplay = true;
+    let constraints = {video: true};
+    navigator.mediaDevices.getUserMedia(constraints).then(stream => video.srcObject = stream);
+    webcamCanvas = document.createElement('canvas');
+    webcamCanvas.width = video.width;
+    webcamCanvas.height = video.height;
+	
     try {
         canvas = document.getElementById("webglcanvas");
         gl = canvas.getContext("webgl");
@@ -413,7 +436,12 @@ function init() {
 		return false;
 	};
 	
-	
-	
-    draw();
+	function everyTime() {
+        requestAnimationFrame(everyTime);
+		draw();
+        
+    }
+	requestAnimationFrame(everyTime);
+	//var myInterval = setInterval(everyTime, 30);
+    
 }
