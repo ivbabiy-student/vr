@@ -235,10 +235,13 @@ function draw() {
   let matAccum1 = m4.multiply(rotateToPointZero, matAccum0);
   let matAccum2 = m4.multiply(translateToPointZero, matAccum1);
   let matAccum3 = m4.multiply(AnaglyphCamera.mLeftModelViewMatrix, matAccum2);
+  let matAclX = m4.axisRotation([0, 1, 0], -0.5 * Math.PI * sensor.x * 0.1)
+  let matAclY = m4.axisRotation([1, 0, 0], 0.5 * Math.PI * sensor.y * 0.1)
+  let matAcl = m4.multiply(matAclX, matAclY);
 
   /* Multiply the projection matrix times the modelview matrix to give the
      combined transformation matrix, and send that to the shader program. */
-  let modelViewProjection = m4.multiply(projection, matAccum3);
+  let modelViewProjection = m4.multiply(projection, m4.multiply(matAccum3, matAcl));
 
   gl.uniformMatrix4fv(iModelViewProjectionMatrix, false, modelViewProjection);
   gl.uniform1i(iTextureMappingUnit, 0);
@@ -254,7 +257,7 @@ function draw() {
 
   projection = AnaglyphCamera.mRightProjectionMatrix;
   matAccum3 = m4.multiply(AnaglyphCamera.mRightModelViewMatrix, matAccum2);
-  modelViewProjection = m4.multiply(projection, matAccum3);
+  modelViewProjection = m4.multiply(projection, m4.multiply(matAccum3, matAcl));
 
   gl.uniformMatrix4fv(iModelViewProjectionMatrix, false, modelViewProjection);
 
