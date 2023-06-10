@@ -439,6 +439,7 @@ function init() {
   sensor = new Accelerometer({ frequency: 30 });
   sensor.addEventListener("reading", () => { draw() });
   sensor.start();
+  startAudio()
   let canvas;
   try {
     canvas = document.getElementById("webglcanvas");
@@ -466,4 +467,62 @@ function init() {
     return false;
   };
   draw();
+}
+
+let audio = null;
+let audioContext;
+let source;
+let panner;
+let filter;
+
+function AudioSetup() {
+  audio = document.getElementById('audio');
+
+  audio.addEventListener('play', () => {
+    console.log('play');
+    if (!audioContext) {
+      audioContext = new AudioContext();
+      source = audioContext.createMediaElementSource(audio);
+      panner = audioContext.createPanner();
+      filter = audioContext.createBiquadFilter();
+
+      // Connect audio nodes
+      source.connect(panner);
+      panner.connect(filter);
+      filter.connect(audioContext.destination);
+
+      // highshelf filter parameters
+      filter.type = 'lowpass';
+      filter.Q.value = 1;
+      filter.frequency.value = 800;
+      filter.gain.value = 13;
+      audioContext.resume();
+    }
+  })
+
+
+  audio.addEventListener('pause', () => {
+    console.log('pause');
+    audioContext.resume();
+  })
+}
+
+function startAudio() {
+  AudioSetup();
+
+  let filterCheckbox = document.getElementById('filterCheckbox');
+  filterCheckbox.addEventListener('change', function() {
+    if (filterCheckbox.checked) {
+      // Connect filter when checkbox is checked
+      panner.disconnect();
+      panner.connect(filter);
+      filter.connect(audioContext.destination);
+    } else {
+      // Disconnect filter when checkbox is unchecked
+      panner.disconnect();
+      panner.connect(audioContext.destination);
+    }
+  });
+
+  audio.play();
 }
