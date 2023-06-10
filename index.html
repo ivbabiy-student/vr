@@ -1,64 +1,73 @@
 <!DOCTYPE html>
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 
-<title>TrackballRotator Demo</title>
-<style>
-    body {
-        background-color: #EEEEEE;
-    }
-	#canvas-holder {
-		display: flex;
-		
-	}
-    
-	#checkboxs {
-		padding-left: 25px;
-	}
-	
-    #box {
-		margin: 20px;
-	}
-</style>
+	<title>TrackballRotator Demo</title>
+	<style>
+		body {
+			background-color: #EEEEEE;
+		}
 
-<!--
+		#canvas-holder {
+			display: flex;
+
+		}
+
+		#checkboxs {
+			padding-left: 25px;
+		}
+
+		#box {
+			margin: 20px;
+		}
+	</style>
+
+	<!--
     An example using a TrackballRotator, defined in TrackballRotator.js,
     to implement rotation by mouse.
 -->
 
-<script src="./Utils/trackball-rotator.js"></script>
-<script src="https://webgl2fundamentals.org/webgl/resources/m4.js"></script>
-<script src="https://webglfundamentals.org/webgl/resources/webgl-lessons-ui.js"></script>
-<script src="./shader.gpu"></script>
-<script src="./main.js"></script>
+	<script src="./Utils/trackball-rotator.js"></script>
+	<script src="https://webgl2fundamentals.org/webgl/resources/m4.js"></script>
+	<script src="https://webglfundamentals.org/webgl/resources/webgl-lessons-ui.js"></script>
+	<script src="./shader.gpu"></script>
+	<script src="./main.js"></script>
 
 
 </head>
+
 <body onload="init()">
+	<h2>Audio and Filter controls</h2>
+	<audio id="audio" src="./Kalush-Stefani.mp3" controls loop></audio>
+	<input type="checkbox" id="filterCheckbox" checked style="width: 40px; height:40px">
+	<h2>A Virich Cyclic Surface with "Trackball" Mouse Rotation</h2>
 
-<h2>A Virich Cyclic Surface with "Trackball" Mouse Rotation</h2>
 
-
-<div id="canvas-holder">
-   <canvas width="650" height="650" id="webglcanvas" style="background-color:red"></canvas>
-   <div id="checkboxs">
-		<div id="box">
-			<div id="eyeSeparation"></div>
+	<div id="canvas-holder">
+		<canvas width="650" height="650" id="webglcanvas" style="background-color:red"></canvas>
+		<div id="checkboxs">
+			<div id="box">
+				<div id="eyeSeparation"></div>
+			</div>
+			<div id="box">
+				<div id="FOV"></div>
+			</div>
+			<div id="box">
+				<div id="nearClippingDistance"></div>
+			</div>
+			<div id="box">
+				<div id="convergence"></div>
+			</div>
 		</div>
-		<div id="box">
-			<div id="FOV"></div>
-		</div>
-		<div id="box">
-			<div id="nearClippingDistance"></div>
-		</div>
-		<div id="box">
-			<div id="convergence"></div>
-		</div>
-   </div>
-</div>
+	</div>
 
 
 
 
 
-</body></html>
+</body>
+
+</html>
